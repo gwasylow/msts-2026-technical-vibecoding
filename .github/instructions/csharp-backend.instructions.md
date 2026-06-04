@@ -1,32 +1,37 @@
-***
+---
+applyTo: "src/**/*.cs"
+description: "C# conventions for MSTSTechVibe backend code using Onion Architecture, CQRS, MediatR, and FluentValidation."
+---
 
-applyTo: "**/*.cs"  
-description: "C# conventions for the MSTS Technical Vibecoding project — CQRS, MediatR, FluentValidation, security"
+# C# Backend Guidance
 
-# Rules for C# code
+## Architecture
 
-## Creating a new Command/Query
-1. Create a `record` implementing `IRequest<TResponse>`
-2. Create a `Handler` implementing `IRequestHandler<TRequest, TResponse>`
-3. Create a `Validator` inheriting from `AbstractValidator<T>` — REQUIRED
-4. Use `CancellationToken` in all async methods
+- Keep dependencies one-way: Domain is independent, Application depends on Domain, Infrastructure depends on Application and Domain, API depends on Application and Infrastructure.
+- Put request models, handlers, validators, and interfaces in Application.
+- Keep framework-specific adapters in Infrastructure.
 
-## Controllers
-- The controller ONLY calls `_mediator.Send(command/query)` — no business logic or as little as possible
-- Validation is automatic via FluentValidation, do not perform manual validation
-- Every endpoint with data: `[Authorize]` attribute
-- Extract userId from JWT: `User.FindFirst("id")?.Value`
+## CQRS and MediatR
 
-## Security
-- NEVER hardcode secrets (connection strings, JWT keys, API keys)
-- NEVER build SQL manually — use EF Core LINQ
-- NEVER return stack traces to the client
-- ALWAYS validate input using FluentValidation
-- ALWAYS check whether the user has access to the resource (authorization check in the handler)
+- Model commands and queries as `record` types implementing `IRequest<TResponse>`.
+- Create one handler per request using `IRequestHandler<TRequest, TResponse>`.
+- Add a FluentValidation validator for every command and query.
+- Pass `CancellationToken` through every async call.
 
-## Entities
-- Inherit from `AuditableEntity` for auditable tables
-- Domain names in Polish (consistent with the existing codebase)
-- Configure relationships using Fluent API in separate files `IEntityTypeConfiguration<T>`
+## API Controllers
 
-***
+- Keep controllers thin: accept HTTP input, call `_mediator.Send(...)`, and shape HTTP responses.
+- Put orchestration, authorization checks, and business rules in handlers.
+- Use `[Authorize]` on endpoints that return or mutate protected data.
+
+## Contracts and Naming
+
+- Use the `MSTSTechVibe.*` namespace hierarchy consistently.
+- Keep request and response payloads stable and predictable for the Next.js client.
+- Prefer explicit DTOs over exposing domain entities directly from the API.
+
+## Security and Reliability
+
+- Do not hardcode real secrets in source-controlled configuration.
+- Do not return stack traces or internal exception details to clients.
+- Prefer safe defaults such as validated input, authenticated access, and bounded payload sizes.

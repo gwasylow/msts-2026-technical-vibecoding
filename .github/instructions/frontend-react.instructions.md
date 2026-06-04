@@ -1,38 +1,29 @@
-Here is the English translation of your frontend conventions document.
+---
+applyTo: "frontend/mststechvibe-webapp/**/*.{ts,tsx}"
+description: "Next.js frontend conventions for MSTSTechVibe when integrating with the backend API."
+---
 
-***
+# Frontend Guidance
 
-applyTo: "Wingsit.ArchiBuildSync.WebApp/**/*.{ts,tsx}"  
-description: "Next.js/React conventions for the MSTS Technical Vibecoding project — forms, fetching, security"
+## API Integration
 
-# Rules for Frontend code (Next.js)
+- Consume backend endpoints under `/api/v1/*` and keep request and response shapes aligned with the ASP.NET Core API.
+- Centralize API calls in a shared client layer instead of scattering `fetch` calls across components.
+- Treat backend validation errors as user-facing form feedback, not raw error dumps.
 
-## Data fetching
-- Use the `useRequest` hook from `hooks/useRequest.ts` for API communication
-- Define endpoints in `api/apiRequests.ts` as an enum
-- JWT Bearer token is automatically attached from the NextAuth session
+## Next.js Patterns
 
-## Forms
-- React Hook Form + Zod schema + `@hookform/resolvers/zod`
-- Zod validation is REQUIRED for every form
+- Prefer Server Components by default and move to Client Components only when interactivity requires it.
+- Keep feature code grouped by route or domain area so it maps cleanly to backend features.
+- Validate outgoing form data with Zod before sending commands to the API.
 
-## Components
-- Folder per feature in `components/`
-- Styling: Tailwind CSS, clsx + tailwind-merge for dynamic classes
-- Icons: Lucide React or RemixIcon
-- Charts: Recharts + Tremor
+## Authentication and Security
 
-## Security
-- NEVER store tokens in localStorage — NextAuth session is the only source
-- NEVER include secrets in client-side code (only `NEXT_PUBLIC_*` for public variables)
-- Validate input data with a Zod schema BEFORE sending to the API
-- Protected routes: `middleware.ts` checks session for `/dashboard/*` and `/dashboard-wz/*`
+- Use secure cookies or a session-based approach for auth; do not store tokens in `localStorage`.
+- Keep secrets out of client code and expose only `NEXT_PUBLIC_*` values when they are truly public.
+- Assume the backend is the source of truth for authorization even if the UI hides protected actions.
 
-## i18n
-- Translations in `lang/` — use `useTranslations()` from next-intl
-- Add new keys to ALL language files
-- If you add a message in the frontend, it must have a translation
+## UI Contracts
 
-***
-
-Do you want me to merge both backend and frontend conventions into a single unified project guideline document?
+- Keep naming aligned with backend DTOs where that reduces mapping noise.
+- Handle loading, empty, validation-error, and unauthorized states explicitly for each API-backed screen.
