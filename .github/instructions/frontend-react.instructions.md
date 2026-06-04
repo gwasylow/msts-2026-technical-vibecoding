@@ -1,9 +1,9 @@
-<!-- Here is the English translation of your frontend conventions document.
+Here is the English translation of your frontend conventions document.
 
 ***
 
 applyTo: "Wingsit.ArchiBuildSync.WebApp/**/*.{ts,tsx}"  
-description: "Next.js/React conventions for the ArchiBuildSync project — forms, fetching, security"
+description: "Next.js/React conventions for the MSTS Technical Vibecoding project — forms, fetching, security"
 
 # Rules for Frontend code (Next.js)
 
@@ -35,4 +35,4 @@ description: "Next.js/React conventions for the ArchiBuildSync project — forms
 
 ***
 
-Do you want me to merge both backend and frontend conventions into a single unified project guideline document? -->
+Do you want me to merge both backend and frontend conventions into a single unified project guideline document?

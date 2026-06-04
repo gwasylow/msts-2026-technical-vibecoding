@@ -4,7 +4,7 @@ description: "Podbij wersję aplikacji (API + Frontend) przed deployem"
 
 # Bump Version
 
-Podbij wersję projektu ArchiBuildSync. Domyślny typ: **patch**.
+Podbij wersję projektu MSTS Technical Vibecoding. Domyślny typ: **patch**.
 
 ## Parametry
 
@@ -18,13 +18,13 @@ Użytkownik może podać typ: `patch`, `minor` lub `major`.
 
 ### 1. API (.NET)
 
-Plik: `Wingsit.ArchiBuildSync.API/Wingsit.ArchiBuildSync.WebAPI.csproj`
+Plik: `Wingsit.MSTSTechnicalVibecoding.API/Wingsit.MSTSTechnicalVibecoding.WebAPI.csproj`
 
 Zmień wartość `<Version>X.Y.Z</Version>` w `<PropertyGroup>` zgodnie z typem bump.
 
 ### 2. Frontend (Next.js)
 
-Plik: `Wingsit.ArchiBuildSync.WebApp/package.json`
+Plik: `Wingsit.MSTSTechnicalVibecoding.WebApp/package.json`
 
 Zmień wartość pola `"version": "X.Y.Z"` zgodnie z typem bump.
 

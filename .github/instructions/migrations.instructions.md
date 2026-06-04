@@ -1,4 +1,4 @@
-<!-- Here is the English translation of your EF Core migrations guidelines.
+Here is the English translation of your EF Core migrations guidelines.
 
 ***
 
@@ -23,4 +23,4 @@ dotnet ef migrations add <MigrationName> \
 
 ***
 
-Would you like me to add examples of good and bad migration practices for your team? -->
+Would you like me to add examples of good and bad migration practices for your team?

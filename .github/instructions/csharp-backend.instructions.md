@@ -1,7 +1,7 @@
-<!-- ***
+***
 
 applyTo: "**/*.cs"  
-description: "C# conventions for the ArchiBuildSync project — CQRS, MediatR, FluentValidation, security"
+description: "C# conventions for the MSTS Technical Vibecoding project — CQRS, MediatR, FluentValidation, security"
 
 # Rules for C# code
 
@@ -29,4 +29,4 @@ description: "C# conventions for the ArchiBuildSync project — CQRS, MediatR, F
 - Domain names in Polish (consistent with the existing codebase)
 - Configure relationships using Fluent API in separate files `IEntityTypeConfiguration<T>`
 
-*** -->
+***
