@@ -2,6 +2,11 @@ export type HealthResponse = {
   status: string;
 };
 
+export type CountdownResponse = {
+  headline: string;
+  deadlineUtc: string;
+};
+
 export type VibeMessage = {
   id: string;
   title: string;

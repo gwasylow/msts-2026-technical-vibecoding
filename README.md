@@ -25,6 +25,7 @@ MSTSTechVibe is a full-stack solution with a .NET 9 backend organized in a class
 ## API Surface
 
 - `GET /api/health` is available for liveness checks.
+- `GET /api/v1/countdown` returns a configurable countdown headline and deadline.
 - `GET /api/v1/vibe-messages` returns vibe messages for authenticated users.
 - `POST /api/v1/vibe-messages` creates a new vibe message for authenticated users.
 
@@ -42,6 +43,11 @@ npm install
 npm run dev
 ```
 
-Update the JWT and CORS settings in [src/MSTSTechVibe.Api/appsettings.json](src/MSTSTechVibe.Api/appsettings.json) before integrating a real identity provider or frontend deployment.
+Update JWT, CORS, and countdown settings in [src/MSTSTechVibe.Api/appsettings.json](src/MSTSTechVibe.Api/appsettings.json) before integrating a real identity provider or frontend deployment.
+
+Countdown values are configured through:
+
+- `Countdown:Headline`
+- `Countdown:DeadlineUtc` (UTC ISO-8601 timestamp)
 
 Set `NEXT_PUBLIC_API_BASE_URL` in the frontend environment when the API is not running on `http://localhost:5137`.

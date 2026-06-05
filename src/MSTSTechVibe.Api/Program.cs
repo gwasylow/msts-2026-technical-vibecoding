@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MSTSTechVibe.Api.Configuration;
 using MSTSTechVibe.Application;
 using MSTSTechVibe.Infrastructure;
 
@@ -16,6 +17,7 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
+builder.Services.Configure<CountdownSettings>(builder.Configuration.GetSection(CountdownSettings.SectionName));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddCors(options =>
 {

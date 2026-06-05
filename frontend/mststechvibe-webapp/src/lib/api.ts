@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { ApiProblem, CreateVibeMessageInput, HealthResponse, VibeMessage } from "@/lib/contracts";
+import type { ApiProblem, CountdownResponse, CreateVibeMessageInput, HealthResponse, VibeMessage } from "@/lib/contracts";
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5137";
 
@@ -61,6 +61,19 @@ export async function getHealthStatus() {
       baseUrl,
     };
   }
+}
+
+export async function getCountdownConfig(): Promise<CountdownResponse> {
+  const response = await fetch(`${baseUrl}/api/v1/countdown`, {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    const problem = await response.json().catch(() => undefined);
+    throw new Error(buildErrorMessage(response.status, problem));
+  }
+
+  return parseJson<CountdownResponse>(response);
 }
 
 export async function getVibeMessages(token: string) {
