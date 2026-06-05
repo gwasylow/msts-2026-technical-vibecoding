@@ -52,45 +52,51 @@ Countdown values are configured through:
 
 Set `NEXT_PUBLIC_API_BASE_URL` in the frontend environment when the API is not running on `http://localhost:5137`.
 
-## Backend Containerization (Docker)
+## Azure Container Apps Deployment
 
-The backend API is containerized with a multi-stage Docker build at [src/MSTSTechVibe.Api/Dockerfile](src/MSTSTechVibe.Api/Dockerfile).
+The Azure deployment now uses Container Apps instead of App Service. The main template is [infra/containerapps.bicep](infra/containerapps.bicep).
 
-### Why this Docker image is production-ready
+### What the template creates
 
-- Multi-stage build keeps the final runtime image small and excludes SDK/build tooling.
-- `.dockerignore` reduces build context and keeps local artifacts out of the image.
-- Container runs as a non-root user.
-- Diagnostics are disabled in the runtime container (`DOTNET_EnableDiagnostics=0`).
-- Health check is configured against `GET /api/health`.
-- Runtime listens on port `8080`, aligned with common Azure container hosting defaults.
+- A Basic Azure Container Registry for the backend and frontend images.
+- A Log Analytics workspace for the Container Apps environment.
+- A Container Apps managed environment.
+- Two external Container Apps with HTTPS ingress:
+  - [web-techvibecoding-backend-api](infra/containerapps.bicep)
+  - [web-techvibecoding-frontend](infra/containerapps.bicep)
 
-### Build and run locally
+### Why this is the minimum viable Azure option
 
-Build from the repository root so project references resolve correctly:
+- Container Apps uses consumption-style billing instead of dedicating a VM-based App Service plan.
+- That avoids the App Service quota blocker that affected this subscription.
+- The template keeps the app external, HTTPS-only, and image-based while using the smallest practical CPU and memory footprint.
+
+### Build and push images
+
+Deploy the infra first, then push the images to the created registry. The frontend image must be built with the backend FQDN baked in.
 
 ```bash
+az deployment group create \
+	--resource-group rg-pl-msts2026-techvibecoding-prod \
+	--template-file infra/containerapps.bicep
+```
+
+```bash
+az acr login --name <acr-name>
+
+docker build -f src/MSTSTechVibe.Api/Dockerfile -t <acr-login-server>/backend-api:latest .
+docker push <acr-login-server>/backend-api:latest
+
 docker build \
-	-f src/MSTSTechVibe.Api/Dockerfile \
-	-t mststechvibe-api:local \
-	.
+	--build-arg NEXT_PUBLIC_API_BASE_URL='https://<backend-fqdn>' \
+	-f frontend/mststechvibe-webapp/Dockerfile \
+	-t <acr-login-server>/frontend-webapp:latest \
+	frontend/mststechvibe-webapp
+docker push <acr-login-server>/frontend-webapp:latest
 ```
 
-Run with explicit configuration and secret values through environment variables:
+### Runtime notes
 
-```bash
-docker run --rm -p 8080:8080 \
-	-e ASPNETCORE_ENVIRONMENT=Production \
-	-e Jwt__Issuer=MSTSTechVibe \
-	-e Jwt__Audience=MSTSTechVibe.NextJs \
-	-e Jwt__Key='replace-with-strong-secret-at-least-32-chars' \
-	-e Cors__AllowedOrigins__0='https://your-frontend-host' \
-	mststechvibe-api:local
-```
-
-### Azure readiness notes
-
-- Keep secrets out of source control and inject them via Azure App Settings, Key Vault references, or Container Apps secrets.
-- Keep `ASPNETCORE_ENVIRONMENT=Production` in cloud deployments.
-- The app is reverse-proxy aware (`X-Forwarded-For`, `X-Forwarded-Proto`) and enforces HTTPS redirection and HSTS outside Development.
-- Configure CORS to only trusted frontend origins for each environment.
+- Keep secrets out of source control and inject them through Azure environment settings or Key Vault-backed configuration.
+- The backend stays reverse-proxy aware and continues to enforce secure defaults.
+- The frontend image must be rebuilt if the backend URL changes, because the client bundle bakes `NEXT_PUBLIC_API_BASE_URL` at build time.
