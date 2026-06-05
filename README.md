@@ -51,3 +51,46 @@ Countdown values are configured through:
 - `Countdown:DeadlineUtc` (UTC ISO-8601 timestamp)
 
 Set `NEXT_PUBLIC_API_BASE_URL` in the frontend environment when the API is not running on `http://localhost:5137`.
+
+## Backend Containerization (Docker)
+
+The backend API is containerized with a multi-stage Docker build at [src/MSTSTechVibe.Api/Dockerfile](src/MSTSTechVibe.Api/Dockerfile).
+
+### Why this Docker image is production-ready
+
+- Multi-stage build keeps the final runtime image small and excludes SDK/build tooling.
+- `.dockerignore` reduces build context and keeps local artifacts out of the image.
+- Container runs as a non-root user.
+- Diagnostics are disabled in the runtime container (`DOTNET_EnableDiagnostics=0`).
+- Health check is configured against `GET /api/health`.
+- Runtime listens on port `8080`, aligned with common Azure container hosting defaults.
+
+### Build and run locally
+
+Build from the repository root so project references resolve correctly:
+
+```bash
+docker build \
+	-f src/MSTSTechVibe.Api/Dockerfile \
+	-t mststechvibe-api:local \
+	.
+```
+
+Run with explicit configuration and secret values through environment variables:
+
+```bash
+docker run --rm -p 8080:8080 \
+	-e ASPNETCORE_ENVIRONMENT=Production \
+	-e Jwt__Issuer=MSTSTechVibe \
+	-e Jwt__Audience=MSTSTechVibe.NextJs \
+	-e Jwt__Key='replace-with-strong-secret-at-least-32-chars' \
+	-e Cors__AllowedOrigins__0='https://your-frontend-host' \
+	mststechvibe-api:local
+```
+
+### Azure readiness notes
+
+- Keep secrets out of source control and inject them via Azure App Settings, Key Vault references, or Container Apps secrets.
+- Keep `ASPNETCORE_ENVIRONMENT=Production` in cloud deployments.
+- The app is reverse-proxy aware (`X-Forwarded-For`, `X-Forwarded-Proto`) and enforces HTTPS redirection and HSTS outside Development.
+- Configure CORS to only trusted frontend origins for each environment.

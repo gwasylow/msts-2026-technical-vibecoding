@@ -1,0 +1,17 @@
+.git
+.gitignore
+.vscode
+.vs
+
+**/.DS_Store
+**/*.suo
+**/*.user
+**/*.swp
+
+**/bin
+**/obj
+**/TestResults
+**/node_modules
+
+frontend/
+tests/
