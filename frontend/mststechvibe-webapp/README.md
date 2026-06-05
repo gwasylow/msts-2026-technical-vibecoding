@@ -34,7 +34,10 @@ Frontend containerization is configured in [Dockerfile](Dockerfile) with a multi
 ### Build image
 
 ```bash
-docker build -t mststechvibe-webapp:local .
+docker build \
+	--build-arg NEXT_PUBLIC_API_BASE_URL='https://your-backend-host' \
+	-t mststechvibe-webapp:local \
+	.
 ```
 
 ### Run image
@@ -51,3 +54,4 @@ docker run --rm -p 3000:3000 \
 - Image listens on port `3000`, which maps cleanly to Azure Container Apps and Azure App Service for Containers.
 - Keep runtime configuration in Azure environment settings, not in committed files.
 - For public frontend config values, use only `NEXT_PUBLIC_*` variables.
+- Build the image with `NEXT_PUBLIC_API_BASE_URL` so the browser bundle points at the deployed backend URL.
