@@ -9,4 +9,5 @@ description: "Guidance for Markdown documentation in this project."
 - Use relative links for files inside the workspace.
 - Keep examples concise and accurate.
 - Match the tone and style of the existing documentation.
+- When documenting routes, commands, or instruction files, keep examples aligned with the current repo structure and build commands.
 
