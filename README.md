@@ -13,6 +13,7 @@ MSTSTechVibe is a full-stack solution with a .NET 9 backend organized in a class
 - [frontend/mststechvibe-webapp](frontend/mststechvibe-webapp)
 - [.github/copilot-instructions.md](.github/copilot-instructions.md)
 - [.github/instructions](.github/instructions)
+- [.github/instructions/azure-containerapps-deployment.instructions.md](.github/instructions/azure-containerapps-deployment.instructions.md)
 
 ## Architecture
 
@@ -84,15 +85,20 @@ az deployment group create \
 ```bash
 az acr login --name <acr-name>
 
-docker build -f src/MSTSTechVibe.Api/Dockerfile -t <acr-login-server>/backend-api:latest .
-docker push <acr-login-server>/backend-api:latest
+docker buildx build \
+	--platform linux/amd64 \
+	-f src/MSTSTechVibe.Api/Dockerfile \
+	-t <acr-login-server>/backend-api:latest \
+	--push \
+	.
 
-docker build \
+docker buildx build \
+	--platform linux/amd64 \
 	--build-arg NEXT_PUBLIC_API_BASE_URL='https://<backend-fqdn>' \
 	-f frontend/mststechvibe-webapp/Dockerfile \
 	-t <acr-login-server>/frontend-webapp:latest \
+	--push \
 	frontend/mststechvibe-webapp
-docker push <acr-login-server>/frontend-webapp:latest
 ```
 
 ### Runtime notes

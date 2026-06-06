@@ -34,7 +34,8 @@ Frontend containerization is configured in [Dockerfile](Dockerfile) with a multi
 ### Build image
 
 ```bash
-docker build \
+docker buildx build \
+	--platform linux/amd64 \
 	--build-arg NEXT_PUBLIC_API_BASE_URL='https://your-backend-host' \
 	-t mststechvibe-webapp:local \
 	.
