@@ -1,0 +1,381 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.43.8.12551",
+      "templateHash": "7231038852059083407"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Azure region for all Container Apps resources. Defaults to the resource group location."
+      }
+    },
+    "containerAppsEnvironmentName": {
+      "type": "string",
+      "defaultValue": "cae-techvibecoding-prod",
+      "metadata": {
+        "description": "Container Apps environment name."
+      }
+    },
+    "backendAppName": {
+      "type": "string",
+      "defaultValue": "web-techvibecoding-backend-api",
+      "metadata": {
+        "description": "Backend container app name."
+      }
+    },
+    "frontendAppName": {
+      "type": "string",
+      "defaultValue": "web-techvibecoding-frontend",
+      "metadata": {
+        "description": "Frontend container app name."
+      }
+    },
+    "backendImageRepository": {
+      "type": "string",
+      "defaultValue": "backend-api",
+      "metadata": {
+        "description": "Backend container repository name in the registry created by this template."
+      }
+    },
+    "backendImageTag": {
+      "type": "string",
+      "defaultValue": "latest",
+      "metadata": {
+        "description": "Backend container tag in the registry created by this template."
+      }
+    },
+    "frontendImageRepository": {
+      "type": "string",
+      "defaultValue": "frontend-webapp",
+      "metadata": {
+        "description": "Frontend container repository name in the registry created by this template."
+      }
+    },
+    "frontendImageTag": {
+      "type": "string",
+      "defaultValue": "latest",
+      "metadata": {
+        "description": "Frontend container tag in the registry created by this template."
+      }
+    },
+    "backendImageReference": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Optional backend image reference. Leave empty to use the registry created by this template."
+      }
+    },
+    "frontendImageReference": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Optional frontend image reference. Leave empty to use the registry created by this template."
+      }
+    },
+    "frontendPublicApiBaseUrl": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Optional public API base URL baked into the frontend image at build time."
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Optional tags applied to all resources."
+      }
+    },
+    "containerRegistryName": {
+      "type": "string",
+      "defaultValue": "[toLower(format('acr{0}', uniqueString(resourceGroup().id, parameters('location'))))]",
+      "metadata": {
+        "description": "Registry name. Defaults to a deterministic name based on the resource group and location."
+      }
+    },
+    "containerRegistrySkuName": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "metadata": {
+        "description": "Registry SKU."
+      }
+    },
+    "logAnalyticsWorkspaceName": {
+      "type": "string",
+      "defaultValue": "law-techvibecoding-prod",
+      "metadata": {
+        "description": "Log Analytics workspace name used by the Container Apps environment."
+      }
+    },
+    "backendPort": {
+      "type": "int",
+      "defaultValue": 8080,
+      "metadata": {
+        "description": "Backend container port exposed by the image."
+      }
+    },
+    "frontendPort": {
+      "type": "int",
+      "defaultValue": 3000,
+      "metadata": {
+        "description": "Frontend container port exposed by the image."
+      }
+    },
+    "backendMemory": {
+      "type": "string",
+      "defaultValue": "0.5Gi",
+      "metadata": {
+        "description": "Backend CPU allocation in vCPU units."
+      }
+    },
+    "frontendMemory": {
+      "type": "string",
+      "defaultValue": "0.5Gi",
+      "metadata": {
+        "description": "Frontend memory allocation."
+      }
+    }
+  },
+  "variables": {
+    "containerRegistryLoginServer": "[format('{0}.azurecr.io', parameters('containerRegistryName'))]",
+    "backendImageReferenceResolved": "[if(empty(parameters('backendImageReference')), format('{0}/{1}:{2}', variables('containerRegistryLoginServer'), parameters('backendImageRepository'), parameters('backendImageTag')), parameters('backendImageReference'))]",
+    "frontendImageReferenceResolved": "[if(empty(parameters('frontendImageReference')), format('{0}/{1}:{2}', variables('containerRegistryLoginServer'), parameters('frontendImageRepository'), parameters('frontendImageTag')), parameters('frontendImageReference'))]",
+    "containerAppCpu": "[json('0.25')]",
+    "frontendEnvironmentVariables": "[concat(createArray(createObject('name', 'NODE_ENV', 'value', 'production')), if(empty(parameters('frontendPublicApiBaseUrl')), createArray(), createArray(createObject('name', 'NEXT_PUBLIC_API_BASE_URL', 'value', parameters('frontendPublicApiBaseUrl')))))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2023-07-01",
+      "name": "[parameters('containerRegistryName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('containerRegistrySkuName')]"
+      },
+      "properties": {
+        "adminUserEnabled": false,
+        "publicNetworkAccess": "Enabled",
+        "policies": {
+          "quarantinePolicy": {
+            "status": "disabled"
+          },
+          "trustPolicy": {
+            "type": "Notary",
+            "status": "disabled"
+          },
+          "retentionPolicy": {
+            "days": 7,
+            "status": "disabled"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2022-10-01",
+      "name": "[parameters('logAnalyticsWorkspaceName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 30,
+        "features": {
+          "searchVersion": 1
+        }
+      }
+    },
+    {
+      "type": "Microsoft.App/managedEnvironments",
+      "apiVersion": "2024-03-01",
+      "name": "[parameters('containerAppsEnvironmentName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "appLogsConfiguration": {
+          "destination": "log-analytics",
+          "logAnalyticsConfiguration": {
+            "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').customerId]",
+            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2024-03-01",
+      "name": "[parameters('backendAppName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', parameters('containerAppsEnvironmentName'))]",
+        "configuration": {
+          "activeRevisionsMode": "Single",
+          "ingress": {
+            "external": true,
+            "allowInsecure": false,
+            "targetPort": "[parameters('backendPort')]",
+            "transport": "auto",
+            "traffic": [
+              {
+                "latestRevision": true,
+                "weight": 100
+              }
+            ]
+          },
+          "registries": [
+            {
+              "server": "[variables('containerRegistryLoginServer')]",
+              "identity": "system"
+            }
+          ]
+        },
+        "template": {
+          "containers": [
+            {
+              "name": "backend-api",
+              "image": "[variables('backendImageReferenceResolved')]",
+              "env": [
+                {
+                  "name": "ASPNETCORE_ENVIRONMENT",
+                  "value": "Production"
+                }
+              ],
+              "resources": {
+                "cpu": "[variables('containerAppCpu')]",
+                "memory": "[parameters('backendMemory')]"
+              }
+            }
+          ],
+          "scale": {
+            "minReplicas": 0,
+            "maxReplicas": 1
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.App/managedEnvironments', parameters('containerAppsEnvironmentName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2024-03-01",
+      "name": "[parameters('frontendAppName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', parameters('containerAppsEnvironmentName'))]",
+        "configuration": {
+          "activeRevisionsMode": "Single",
+          "ingress": {
+            "external": true,
+            "allowInsecure": false,
+            "targetPort": "[parameters('frontendPort')]",
+            "transport": "auto",
+            "traffic": [
+              {
+                "latestRevision": true,
+                "weight": 100
+              }
+            ]
+          },
+          "registries": [
+            {
+              "server": "[variables('containerRegistryLoginServer')]",
+              "identity": "system"
+            }
+          ]
+        },
+        "template": {
+          "containers": [
+            {
+              "name": "frontend-webapp",
+              "image": "[variables('frontendImageReferenceResolved')]",
+              "env": "[variables('frontendEnvironmentVariables')]",
+              "resources": {
+                "cpu": "[variables('containerAppCpu')]",
+                "memory": "[parameters('frontendMemory')]"
+              }
+            }
+          ],
+          "scale": {
+            "minReplicas": 0,
+            "maxReplicas": 1
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.App/managedEnvironments', parameters('containerAppsEnvironmentName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
+      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), resourceId('Microsoft.App/containerApps', parameters('backendAppName')), 'AcrPull')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+        "principalId": "[reference(resourceId('Microsoft.App/containerApps', parameters('backendAppName')), '2024-03-01', 'full').identity.principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.App/containerApps', parameters('backendAppName'))]",
+        "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
+      "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName')), resourceId('Microsoft.App/containerApps', parameters('frontendAppName')), 'AcrPull')]",
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+        "principalId": "[reference(resourceId('Microsoft.App/containerApps', parameters('frontendAppName')), '2024-03-01', 'full').identity.principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]",
+        "[resourceId('Microsoft.App/containerApps', parameters('frontendAppName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "containerRegistryLoginServer": {
+      "type": "string",
+      "value": "[variables('containerRegistryLoginServer')]"
+    },
+    "backendFqdn": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.App/containerApps', parameters('backendAppName')), '2024-03-01').configuration.ingress.fqdn]"
+    },
+    "frontendFqdn": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.App/containerApps', parameters('frontendAppName')), '2024-03-01').configuration.ingress.fqdn]"
+    },
+    "backendUrl": {
+      "type": "string",
+      "value": "[format('https://{0}', reference(resourceId('Microsoft.App/containerApps', parameters('backendAppName')), '2024-03-01').configuration.ingress.fqdn)]"
+    },
+    "frontendUrl": {
+      "type": "string",
+      "value": "[format('https://{0}', reference(resourceId('Microsoft.App/containerApps', parameters('frontendAppName')), '2024-03-01').configuration.ingress.fqdn)]"
+    }
+  }
+}
