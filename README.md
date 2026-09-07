@@ -55,7 +55,7 @@ Set `NEXT_PUBLIC_API_BASE_URL` in the frontend environment when the API is not r
 
 ## Azure Container Apps Deployment
 
-The Azure deployment now uses Container Apps instead of App Service. The main template is [infra/containerapps.bicep](infra/containerapps.bicep).
+The Azure deployment now uses Container Apps instead of App Service. The main template is [infra/containerapps.bicep](infra/containerapps.bicep). Project-specific deployment targets and repeatable commands are maintained in [.github/instructions/azure-containerapps-deployment.instructions.md](.github/instructions/azure-containerapps-deployment.instructions.md).
 
 ### What the template creates
 
