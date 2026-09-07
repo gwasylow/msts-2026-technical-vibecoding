@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Space_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const sansFont = Space_Grotesk({
@@ -29,6 +30,18 @@ export default function RootLayout({
       className={`${sansFont.variable} ${monoFont.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-432ZEE15BK"
+        strategy="afterInteractive"
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){window.dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-432ZEE15BK');
+        `}
+      </Script>
     </html>
   );
 }
