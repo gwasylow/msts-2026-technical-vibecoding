@@ -15,7 +15,7 @@ const monoFont = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MSTSTechVibe.WebApp",
+  title: "Koniecautostrady.pl",
   description: "Next.js frontend for the MSTSTechVibe API.",
 };
 
