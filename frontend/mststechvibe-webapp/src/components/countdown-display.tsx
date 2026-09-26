@@ -99,8 +99,9 @@ export function CountdownDisplay({ headline, deadlineUtc }: CountdownDisplayProp
   if (Number.isNaN(deadline.getTime())) {
     return (
       <section className="countdown-panel mx-auto w-full max-w-6xl rounded-[2rem] p-6 text-center md:p-10">
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--countdown-text)] md:text-5xl">KoniecAutostrady.pl</h1>
         <p className="countdown-kicker">Problem z konfiguracją</p>
-        <h1 className="mt-4 text-2xl font-semibold md:text-4xl">Nie można odczytać daty końcowej z API.</h1>
+        <h2 className="mt-4 text-2xl font-semibold md:text-4xl">Nie można odczytać daty końcowej z API.</h2>
       </section>
     );
   }
@@ -109,6 +110,7 @@ export function CountdownDisplay({ headline, deadlineUtc }: CountdownDisplayProp
 
   return (
     <section className="countdown-panel mx-auto w-full max-w-6xl rounded-[2rem] p-6 md:p-10">
+      <h1 className="text-center text-3xl font-semibold tracking-tight text-[var(--countdown-text)] md:text-5xl">KoniecAutostrady.pl</h1>
       <p className="countdown-kicker text-center">Status systemu</p>
       <p className="mt-4 text-center text-balance text-2xl font-semibold tracking-tight text-[var(--countdown-text)] md:text-4xl">
         {headline}
