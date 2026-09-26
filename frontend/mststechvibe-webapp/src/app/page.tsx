@@ -13,12 +13,12 @@ export default async function Home() {
         <CountdownDisplay headline={countdown.headline} deadlineUtc={countdown.deadlineUtc} />
       ) : (
         <section className="countdown-panel mx-auto w-full max-w-4xl rounded-[2rem] p-6 text-center md:p-10">
-          <p className="countdown-kicker">Countdown unavailable</p>
+          <p className="countdown-kicker">Odliczanie niedostępne</p>
           <h1 className="mt-4 text-balance text-2xl font-semibold tracking-tight text-[var(--countdown-text)] md:text-4xl">
-            Unable to load countdown settings from the backend.
+            Nie udało się pobrać ustawień odliczania z serwera.
           </h1>
           <p className="mt-5 text-sm text-[var(--countdown-muted)] md:text-base">
-            Verify the API is running and reachable at {baseUrl}/api/v1/countdown.
+            Sprawdź, czy API działa i jest dostępne pod adresem {baseUrl}/api/v1/countdown.
           </p>
         </section>
       )}

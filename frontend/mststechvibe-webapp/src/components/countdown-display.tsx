@@ -73,6 +73,15 @@ function formatUnit(value: number) {
   return value.toString().padStart(2, "0");
 }
 
+function getPolishUnitLabel(value: number, singular: string, plural: string, genitivePlural: string) {
+  const lastTwoDigits = value % 100;
+  const lastDigit = value % 10;
+
+  if (value === 1) return singular;
+  if (lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14)) return plural;
+  return genitivePlural;
+}
+
 export function CountdownDisplay({ headline, deadlineUtc }: CountdownDisplayProps) {
   const deadline = useMemo(() => new Date(deadlineUtc), [deadlineUtc]);
   const [now, setNow] = useState(() => new Date());
@@ -90,8 +99,8 @@ export function CountdownDisplay({ headline, deadlineUtc }: CountdownDisplayProp
   if (Number.isNaN(deadline.getTime())) {
     return (
       <section className="countdown-panel mx-auto w-full max-w-6xl rounded-[2rem] p-6 text-center md:p-10">
-        <p className="countdown-kicker">Configuration issue</p>
-        <h1 className="mt-4 text-2xl font-semibold md:text-4xl">Unable to parse deadline from API.</h1>
+        <p className="countdown-kicker">Problem z konfiguracją</p>
+        <h1 className="mt-4 text-2xl font-semibold md:text-4xl">Nie można odczytać daty końcowej z API.</h1>
       </section>
     );
   }
@@ -100,32 +109,32 @@ export function CountdownDisplay({ headline, deadlineUtc }: CountdownDisplayProp
 
   return (
     <section className="countdown-panel mx-auto w-full max-w-6xl rounded-[2rem] p-6 md:p-10">
-      <p className="countdown-kicker text-center">System Status</p>
+      <p className="countdown-kicker text-center">Status systemu</p>
       <p className="mt-4 text-center text-balance text-2xl font-semibold tracking-tight text-[var(--countdown-text)] md:text-4xl">
         {headline}
       </p>
 
       {parts.isDone ? (
         <div className="mt-12 text-center">
-          <p className="countdown-complete">We are all good!</p>
+          <p className="countdown-complete">Wszystko działa prawidłowo!</p>
         </div>
       ) : (
         <div className="mt-10 grid grid-cols-2 gap-4 md:mt-14 md:grid-cols-4 md:gap-6">
           <article className="countdown-card">
             <p className="countdown-value">{formatUnit(parts.months)}</p>
-            <p className="countdown-label">Months</p>
+            <p className="countdown-label">{getPolishUnitLabel(parts.months, "Miesiąc", "Miesiące", "Miesięcy")}</p>
           </article>
           <article className="countdown-card">
             <p className="countdown-value">{formatUnit(parts.days)}</p>
-            <p className="countdown-label">Days</p>
+            <p className="countdown-label">{getPolishUnitLabel(parts.days, "Dzień", "Dni", "Dni")}</p>
           </article>
           <article className="countdown-card">
             <p className="countdown-value">{formatUnit(parts.hours)}</p>
-            <p className="countdown-label">Hours</p>
+            <p className="countdown-label">{getPolishUnitLabel(parts.hours, "Godzina", "Godziny", "Godzin")}</p>
           </article>
           <article className="countdown-card">
             <p className="countdown-value">{formatUnit(parts.seconds)}</p>
-            <p className="countdown-label">Seconds</p>
+            <p className="countdown-label">{getPolishUnitLabel(parts.seconds, "Sekunda", "Sekundy", "Sekund")}</p>
           </article>
         </div>
       )}

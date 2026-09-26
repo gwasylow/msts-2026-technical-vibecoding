@@ -16,7 +16,7 @@ const monoFont = Space_Mono({
 
 export const metadata: Metadata = {
   title: "Koniecautostrady.pl",
-  description: "Next.js frontend for the MSTSTechVibe API.",
+  description: "Odliczanie do konferencji MS Tech Summit 2026.",
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="pl"
       className={`${sansFont.variable} ${monoFont.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
