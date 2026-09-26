@@ -114,7 +114,6 @@ export function CountdownDisplay({ headline, deadlineUtc }: CountdownDisplayProp
 
   return (
     <section className="countdown-panel mx-auto w-full max-w-6xl rounded-[2rem] p-6 md:p-10">
-      <h1 className="text-center text-3xl font-semibold tracking-tight text-[var(--countdown-text)] md:text-5xl">KoniecAutostrady.pl</h1>
       <p className="countdown-kicker text-center">Status systemu</p>
       <p className="mt-4 text-center text-balance text-2xl font-semibold tracking-tight text-[var(--countdown-text)] md:text-4xl">
         {headline}
