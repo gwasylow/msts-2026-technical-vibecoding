@@ -11,6 +11,7 @@ type CountdownParts = {
   months: number;
   days: number;
   hours: number;
+  minutes: number;
   seconds: number;
   isDone: boolean;
 };
@@ -33,6 +34,7 @@ function getCountdownParts(now: Date, deadline: Date): CountdownParts {
       months: 0,
       days: 0,
       hours: 0,
+      minutes: 0,
       seconds: 0,
       isDone: true,
     };
@@ -57,13 +59,15 @@ function getCountdownParts(now: Date, deadline: Date): CountdownParts {
   const hours = Math.floor(afterDaysMs / (1000 * 60 * 60));
   const afterHoursMs = afterDaysMs - hours * 1000 * 60 * 60;
 
-  // Minutes are intentionally folded into seconds to match the requested units.
-  const seconds = Math.floor(afterHoursMs / 1000);
+  const minutes = Math.floor(afterHoursMs / (1000 * 60));
+  const afterMinutesMs = afterHoursMs - minutes * 1000 * 60;
+  const seconds = Math.floor(afterMinutesMs / 1000);
 
   return {
     months,
     days,
     hours,
+    minutes,
     seconds,
     isDone: false,
   };
@@ -121,7 +125,7 @@ export function CountdownDisplay({ headline, deadlineUtc }: CountdownDisplayProp
           <p className="countdown-complete">Wszystko działa prawidłowo!</p>
         </div>
       ) : (
-        <div className="mt-10 grid grid-cols-2 gap-4 md:mt-14 md:grid-cols-4 md:gap-6">
+        <div className="mt-10 grid grid-cols-2 gap-4 md:mt-14 md:grid-cols-5 md:gap-6">
           <article className="countdown-card">
             <p className="countdown-value">{formatUnit(parts.months)}</p>
             <p className="countdown-label">{getPolishUnitLabel(parts.months, "Miesiąc", "Miesiące", "Miesięcy")}</p>
@@ -133,6 +137,10 @@ export function CountdownDisplay({ headline, deadlineUtc }: CountdownDisplayProp
           <article className="countdown-card">
             <p className="countdown-value">{formatUnit(parts.hours)}</p>
             <p className="countdown-label">{getPolishUnitLabel(parts.hours, "Godzina", "Godziny", "Godzin")}</p>
+          </article>
+          <article className="countdown-card">
+            <p className="countdown-value">{formatUnit(parts.minutes)}</p>
+            <p className="countdown-label">{getPolishUnitLabel(parts.minutes, "Minuta", "Minuty", "Minut")}</p>
           </article>
           <article className="countdown-card">
             <p className="countdown-value">{formatUnit(parts.seconds)}</p>
